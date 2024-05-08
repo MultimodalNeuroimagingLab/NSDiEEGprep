@@ -10,7 +10,7 @@ localDataPath = setLocalDataPath(1); % runs local PersonalDataPath (gitignored)
 addpath('functions');
 
 % subject to preprocess
-ss = 17;
+ss = 3;
 sub_label = sprintf('%02d', ss);
 
 ses_label = 'ieeg01';
@@ -52,10 +52,10 @@ end
 % Channel info across runs
 all_channels.name = channels_table.name;
 all_channels.type = channels_table.type;
-all_channels.status = good_channel_bool; % 1 is good, zero is bad, -1 is SOZ
+all_channels.status = good_channel_bool; % 1 is good, zero is bad
 % SOZ channels
 elecsSOZ = elecs.name(contains(elecs.seizure_zone, 'SOZ')); % first set SOZ channels to bad
-all_channels.soz = ismember(all_channels.name, elecsSOZ);
+all_channels.soz = ismember(all_channels.name, elecsSOZ); % 1 is SOZ, 0 is no SOZ
 
 
 %% Loop through NSD01 - NSD10 and all runs individually, concatenate output at the end
