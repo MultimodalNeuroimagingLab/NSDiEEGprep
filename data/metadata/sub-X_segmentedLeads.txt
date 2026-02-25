@@ -1,2 +1,0 @@
-seg5	seg6
-LB	LA, LC

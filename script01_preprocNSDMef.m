@@ -10,7 +10,7 @@ localDataPath = setLocalDataPath(1); % runs local PersonalDataPath (gitignored)
 addpath('functions');
 
 % subject to preprocess
-ss = 17;
+ss = 5;
 sub_label = sprintf('%02d', ss);
 
 ses_label = 'ieeg01';
@@ -187,9 +187,9 @@ clear all
 localDataPath = setLocalDataPath(1); % runs local PersonalDataPath (gitignored)
 addpath('functions');
 
-subjects = {'01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17'};
+subjects = {'01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19'};
 
-ss = 13;
+ss = 5;
 sub_label = subjects{ss};
 ses_label = 'ieeg01';
 
@@ -228,18 +228,26 @@ t_avg = tt>0.1 & tt<.5;
 for el_nr = 1:size(Mbb_norm,1)
     
     if ismember(all_channels.type(el_nr),'SEEG') && all_channels.status(el_nr)==1
+        
         bb_strength = squeeze(mean(Mbb_norm(el_nr,t_avg==1,:),2));
         
-        all_repeats = find(nsd_repeats>0);
-        shared_idx_repeats = unique(shared_idx(all_repeats)); % 100 images
-        repeats_bb_strength = cell(length(shared_idx_repeats),1);
-        for kk = 1:length(shared_idx_repeats)
-            these_trials = find(shared_idx==shared_idx_repeats(kk));    % for this repeat, find the correct 6 trial numbers out of the 1500 and get the image and the data
-            repeats_bb_strength{kk} = bb_strength(these_trials); 
+        if sum(~isnan(bb_strength))~=0
+
+            all_repeats = find(nsd_repeats>0);
+            shared_idx_repeats = unique(shared_idx(all_repeats)); % 100 images
+            repeats_bb_strength = cell(length(shared_idx_repeats),1);
+            for kk = 1:length(shared_idx_repeats)
+                these_trials = find(shared_idx==shared_idx_repeats(kk));    % for this repeat, find the correct 6 trial numbers out of the 1500 and get the image and the data
+                repeats_bb_strength{kk} = bb_strength(these_trials); 
+            end
+            
+            % [NCSNR, p, NCSNRNull] = estimateNCSNR(repeats_bb_strength, 1000);
+            [NCSNR] = estimateNCSNR(repeats_bb_strength);    % fast, no permutations
+
+            all_chan_snr(el_nr) = NCSNR;
+        else
+            disp(['channel ' all_channels.name{el_nr} ' should be set to bad'])
         end
-        
-        [NCSNR, p, NCSNRNull] = estimateNCSNR(repeats_bb_strength, 1000);
-        all_chan_snr(el_nr) = NCSNR;
     end
 end
 
@@ -275,7 +283,7 @@ Wang_ROI_Names = {...
     'TO2' 'TO1' 'LO2' 'LO1' 'V3B' 'V3A' 'IPS0' 'IPS1' 'IPS2' 'IPS3' 'IPS4' ...
     'IPS5' 'SPL1' 'FEF'};
 
-for hh = 1:2
+for hh = 2%1:2
 
     if hh==1
         hemi = 'l';
@@ -302,7 +310,7 @@ for hh = 1:2
     electrodes_thisHemi = find(ismember(elecs.hemisphere,upper(hemi)));
 
     % make a plot with electrode dots
-    for vv = 1:length(views_plot)
+    for vv = 1%1:length(views_plot)
         v_d = [views_plot{vv}(1),views_plot{vv}(2)];
 
         % get the inflated coordinates
@@ -318,8 +326,8 @@ for hh = 1:2
         ieeg_elAdd(els(electrodes_thisHemi,:),[.1 .1 .1],15) % add electrode positions
         ieeg_viewLight(v_d(1),v_d(2)) % change viewing angle   
         set(gcf,'PaperPositionMode','auto')
-        print('-dpng','-r300',fullfile(localDataPath.input,'derivatives','render',['sub-' sub_label],...
-            ['inflated_dots_sub-' sub_label '_WangAreas_v' int2str(v_d(1)) '_' int2str(v_d(2)) '_' hemi]))
+%         print('-dpng','-r300',fullfile(localDataPath.input,'derivatives','render',['sub-' sub_label],...
+%             ['inflated_dots_sub-' sub_label '_WangAreas_v' int2str(v_d(1)) '_' int2str(v_d(2)) '_' hemi]))
          
         % with labels 
         figure
@@ -328,8 +336,8 @@ for hh = 1:2
         ieeg_label(els_pop(electrodes_thisHemi,:),20,6,elecs.name(electrodes_thisHemi)) % add electrode names
         ieeg_viewLight(v_d(1),v_d(2)) % change viewing angle   
         set(gcf,'PaperPositionMode','auto')
-        print('-dpng','-r300',fullfile(localDataPath.input,'derivatives','render',['sub-' sub_label],...
-            ['inflated_labels_sub-' sub_label '_WangAreas_v' int2str(v_d(1)) '_' int2str(v_d(2)) '_' hemi]))
+%         print('-dpng','-r300',fullfile(localDataPath.input,'derivatives','render',['sub-' sub_label],...
+%             ['inflated_labels_sub-' sub_label '_WangAreas_v' int2str(v_d(1)) '_' int2str(v_d(2)) '_' hemi]))
              
         % with activity
         figure
@@ -339,10 +347,10 @@ for hh = 1:2
         ieeg_elAdd_sizable(els_pop(electrodes_thisHemi,:),all_chan_snr_plot(electrodes_thisHemi),.8,40) % add electrode positions
         ieeg_viewLight(v_d(1),v_d(2)) % change viewing angle   
         set(gcf,'PaperPositionMode','auto')
-        print('-dpng','-r300',fullfile(localDataPath.input,'derivatives','render',['sub-' sub_label],...
-            ['NCSNR_sub-' sub_label '_WangAreas_v' int2str(v_d(1)) '_' int2str(v_d(2)) '_' hemi]))
+%         print('-dpng','-r300',fullfile(localDataPath.input,'derivatives','render',['sub-' sub_label],...
+%             ['NCSNR_sub-' sub_label '_WangAreas_v' int2str(v_d(1)) '_' int2str(v_d(2)) '_' hemi]))
     end
-    close all
+%     close all
 
 end
 
