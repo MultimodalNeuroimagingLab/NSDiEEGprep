@@ -29,7 +29,7 @@ mkdir(rootdirMni);
 xyzMni152 = ieeg_getXyzMni(elecmatrix, niiPath, rootdirMni);
 
 % save as separate MNI 152 electrodes table
-elecsMni152Path = fullfile(localDataPath.input, ['sub-' sub_label], ['ses-' ses_label], 'ieeg', ['sub-' sub_label '_ses-' ses_label '_space-' 'MNI152NLin2009' '_electrodes.tsv']);
+elecsMni152Path = fullfile(localDataPath.input, ['sub-' sub_label], ['ses-' ses_label], 'ieeg', ['sub-' sub_label '_ses-' ses_label '_space-' 'MNI152NLin2009cAsym' '_electrodes.tsv']);
 elecsMni152 = elecs;
 elecsMni152.x = xyzMni152(:, 1); elecsMni152.y = xyzMni152(:, 2); elecsMni152.z = xyzMni152(:, 3);
 writetable(elecsMni152, elecsMni152Path, 'FileType', 'text', 'Delimiter', '\t');
